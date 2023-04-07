@@ -1,0 +1,46 @@
+
+entrypoints Start, Stmt;
+
+token Symbol (upper (letter | digit | '_')*) ;
+token Name   (lower (letter | digit | '_')*) ;
+
+comment "--";
+comment "{-" "-}";
+comment "(*" "*)";
+comment "//";
+comment "/*" "*/";
+
+S . Start ::= Expr;
+
+Decl    . Stmt ::= "let" Name "=" Expr;
+Load    . Stmt ::= "load" String;
+ListAll . Stmt ::= "ls";
+Perform . Stmt ::= Expr;
+
+separator Expr ",";
+separator Name ",";
+Var . Expr ::= Name;
+Lam . Expr ::= "fun" [Name] "->" Expr "end";
+App . Expr ::= Expr "(" [Expr] ")";
+Let . Expr ::= "let" Name "=" Expr ";" Expr;
+Fix . Expr ::= "fix" Name "->" Expr "end";
+Int . Expr ::= Integer;
+Neg . Expr ::= "-" Integer;
+Str . Expr ::= String;
+Tag . Expr ::= Symbol "(" [Expr] ")";
+Mtc . Expr ::= "case" Expr "{" [Alt] "}";
+Lst . Expr ::= "[" [Expr] "]";
+Spl . Expr ::= "[" [Expr] "..." Expr "]";
+
+separator Alt ";";
+Cas . Alt ::= Pat "->" Expr;
+
+separator Pat ",";
+PTag . Pat ::= Symbol "(" [Pat] ")";
+PVar . Pat ::= Name;
+PInt . Pat ::= Integer;
+PNeg . Pat ::= "-" Integer;
+PStr . Pat ::= String;
+PWld . Pat ::= "_";
+PLst . Pat ::= "[" [Pat] "]";
+PSpl . Pat ::= "[" [Pat] "..." Pat "]";
