@@ -83,13 +83,13 @@ mutual
     val ← eval stack expr
     eval (val ∷ stack) expr₁
 
-  eval stack (Fix p (Lam {Δ = Δ} p₁ expr)) = do
+  eval stack (Fix p lam@(Lam {Δ = Δ} _ _)) = do
     let
-      full = Lam {Δ} λ p xs → do
-        f ← eval stack (Fix p (Lam {Δ = Δ} p₁ expr))
+      fixpoint = Lam {Δ} λ p xs → do
+        f ← eval stack (Fix p lam)
         apply p f (toList xs)
 
-    eval (full ∷ stack) (Lam {Δ = Δ} p₁ expr)
+    eval (fixpoint ∷ stack) lam  -- fix lam ==> lam (\ xs -> fix lam xs)
 
   eval stack (Fix p e) = fail (OnlyFunctionsCanRecure p)
 

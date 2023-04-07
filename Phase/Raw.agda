@@ -75,10 +75,10 @@ mutual
   showExprᵣ expr@(Tagged p ctor args) with exprIsList expr
   ... | inj₁ a = blue "[" ++ intersperse (blue ", ") (map showExprᵣ a) ++ blue "]"
   ... | inj₂ (inj₁ (a , b)) = blue "[" ++ intersperse (blue ", ") (map showExprᵣ a) ++ blue ", ..." ++ showExprᵣ b ++ blue "]"
-  ... | _ = magenta ctor ++ "(" ++ intersperse ", " (map showExprᵣ args) ++ ")"
+  ... | _ = magenta ctor ++ " {" ++ intersperse ", " (map showExprᵣ args) ++ "}"
 
   showAltᵣ : Altᵣ → String
-  showAltᵣ (Case p pat body) = showPatᵣ pat ++ " ->\n" ++ indent! (showExprᵣ body)
+  showAltᵣ (Case p pat body) = showPatᵣ pat ++ " ->\n" ++ indent! (showExprᵣ body) ++ ";"
 
   showPatᵣ : Patᵣ → String
   showPatᵣ (Var p var) = showName var
@@ -88,4 +88,4 @@ mutual
   showPatᵣ pat@(Tagged p ctor args) with patIsList pat
   ... | inj₁ a = blue "[" ++ intersperse (blue ", ") (map showPatᵣ a) ++ blue "]"
   ... | inj₂ (inj₁ (a , b)) = blue "[" ++ intersperse (blue ", ") (map showPatᵣ a) ++ blue ", ..." ++ showPatᵣ b ++ blue "]"
-  ... | _ = magenta ctor ++ "(" ++ intersperse ", " (map showPatᵣ args) ++ ")"
+  ... | _ = magenta ctor ++ " {" ++ intersperse ", " (map showPatᵣ args) ++ "}"

@@ -24,6 +24,9 @@ mutual
     MatchFailed       : (p : Pos) (subj : Value) → EvalError
     Expected2Ints     : (p : Pos) (x : Value) (y : Value) → EvalError
     OnlyFunctionsCanRecure : (p : Pos) → EvalError
+    CantCompareFunctions : (p : Pos) → EvalError
+    CantCompareValueOfDifferentTypes : (p : Pos) (x : Value) (y : Value) → EvalError
+    SameTagDifferInArgCount : (p : Pos) (t : String) (xs ys : List Value) → EvalError
 
   {-# NO_POSITIVITY_CHECK #-}
   data Value : Set where
@@ -54,7 +57,7 @@ showValue (Str str) = cyan (Data.String.show str)
 showValue val@(Tagged ctor args) with valueIsList val
 ... | inj₁ list = blue "[" ++ intersperse (blue ",") (map showValue list) ++ blue "]"
 ... | inj₂ (inj₁ (list , last)) = blue "[" ++ intersperse (blue ",") (map showValue list) ++ blue ", ..." ++ showValue last ++ blue "]"
-... | inj₂ (inj₂ _) = magenta ctor ++ "(" ++ intersperse ", " (map showValue args) ++ ")"
+... | inj₂ (inj₂ _) = magenta ctor ++ " {" ++ intersperse ", " (map showValue args) ++ "}"
 
 showValue' : ℕ → Value → String
 showValue' zero (Lam action) = green "<function>"
@@ -64,7 +67,7 @@ showValue' zero (Tagged ctor args) = magenta ctor ++ "(...)"
 showValue' (suc n) (Lam action) = green "<function>"
 showValue' (suc n) (Int int) = red (Data.Integer.Show.show int)
 showValue' (suc n) (Str str) = cyan (Data.String.show str)
-showValue' (suc n) (Tagged ctor args) = magenta ctor ++ "(" ++ intersperse ", " (map (showValue' n) args) ++ ")"
+showValue' (suc n) (Tagged ctor args) = magenta ctor ++ " {" ++ intersperse ", " (map (showValue' n) args) ++ "}"
 
 showEvalError : EvalError → String
 showEvalError (TooMuchArgs p formal args) =
@@ -88,3 +91,14 @@ showEvalError (Expected2Ints p x y) =
 
 showEvalError (OnlyFunctionsCanRecure p) =
   "The value under fixpoint must be a lambda function, at " ++ showPos p
+
+showEvalError (CantCompareFunctions p) =
+  "cannot compare with function, at " ++ showPos p
+
+showEvalError (CantCompareValueOfDifferentTypes p x y) =
+  "cannot compare " ++ showValue' 2 x ++ " with " ++ showValue' 2 y ++ ", at " ++ showPos p
+
+showEvalError (SameTagDifferInArgCount p t xs ys) =
+  "cannot sensibly compare 2 values with the same tag " ++ magenta t ++ " and arg-lists of different sizes "
+    ++ "{" ++ intersperse ", " (map (showValue' 2) xs) ++ "} vs {" ++ intersperse ", " (map (showValue' 2) ys) ++ "}"
+    ++ ", at " ++ showPos p

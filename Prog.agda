@@ -130,12 +130,10 @@ repl {Δ} stack = do
 
 import Agda.Builtin.IO
 
-add : Pos → Ctx (♯ "x" ∷ ♯ "y" ∷ []) → Value ⊎ EvalError
-add p (Int x ∷ Int y ∷ []) = inj₁ (Int (x + y))
-add p (x ∷ y ∷ []) = inj₂ (Expected2Ints p x y)
-
+open import Stdlib
 
 main : Agda.Builtin.IO.IO ⊤
 main = run do
   logMsg "\n   DNL (Definitely Not Lisp) REPL, v0.1"
-  repl {Δ = [ ♯ "add" ]} (Lam add ∷ [])
+  repl {Δ = ♯ "add"  ∷ ♯ "compare" ∷ []}
+            (Lam add ∷ Lam cmp     ∷ [])

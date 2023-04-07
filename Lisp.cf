@@ -1,8 +1,8 @@
 
 entrypoints Start, Stmt;
 
-token Symbol (upper (letter | digit | '_')*) ;
-token Name   (lower (letter | digit | '_')*) ;
+token Symbol (upper (letter | '-' | digit | '_')*) ;
+token Name   (lower (letter | '-' | digit | '_')*) ;
 
 comment "--";
 comment "{-" "-}";
@@ -27,8 +27,8 @@ Fix . Expr ::= "fix" Name "->" Expr "end";
 Int . Expr ::= Integer;
 Neg . Expr ::= "-" Integer;
 Str . Expr ::= String;
-Tag . Expr ::= Symbol "(" [Expr] ")";
-Mtc . Expr ::= "case" Expr "{" [Alt] "}";
+Tag . Expr ::= Symbol "{" [Expr] "}";
+Mtc . Expr ::= "case" Expr "of" [Alt] "end";
 Lst . Expr ::= "[" [Expr] "]";
 Spl . Expr ::= "[" [Expr] "..." Expr "]";
 
@@ -36,7 +36,7 @@ separator Alt ";";
 Cas . Alt ::= Pat "->" Expr;
 
 separator Pat ",";
-PTag . Pat ::= Symbol "(" [Pat] ")";
+PTag . Pat ::= Symbol "{" [Pat] "}";
 PVar . Pat ::= Name;
 PInt . Pat ::= Integer;
 PNeg . Pat ::= "-" Integer;
