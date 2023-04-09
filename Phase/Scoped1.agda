@@ -58,6 +58,16 @@ data Scope : Set where
   _‣_  : Scope → Scope → Scope  -- Adding a parent/ordering
   _◃_  : Name → Scope → Scope   -- Adding
 
+cut : Scope → Scope → Scope
+cut (Many x) b = Many x ‣ b
+cut (a ‣ a₁) b = (a ‣ a₁) ‣ b
+cut (x ◃ a) b = x ◃ a
+
+cutoff : Scope → Scope
+cutoff (Many x) = Many x
+cutoff (scope ‣ scope₁) = cut (cutoff scope) (cutoff scope₁)
+cutoff (x ◃ scope) = x ◃ scope
+
 private variable
   c   : Name
   cs  : List Name
@@ -149,7 +159,7 @@ mutual
 
     Import
       : ModPath q s N M
-      → Stmtₛ d M s (N ++ M)  -- Dump scope and submodules from imported one
+      → Stmtₛ d M (cutoff s) (N ++ M)  -- Dump scope and submodules from imported one
 
     Decl
       : Exprₛ s
