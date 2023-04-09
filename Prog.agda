@@ -70,46 +70,48 @@ prepare {Γ = Γ} expr stack nope yep = do
           yep value
 
 
-unfold : {Γ : _} → Exprᵣ → Ctx Γ → IO (∃[ Δ ] Ctx (Δ ++ Γ))
-unfold {Γ} (Let p n expr body) stack = do
-  prepare expr stack (do pure ([] , stack)) λ where
+open import Thinning
+open import Pass.Substitute
+
+unfold : {S Γ : _} → Exprᵣ → S ⊂ Γ → Ctx S → Ctx Γ → IO (∃[ Δ ] Ctx (Δ ++ Γ))
+unfold {S} {Γ} (Let p n expr body) ext initial stack = do
+  prepare expr initial (do pure ([] , stack)) λ where
     value → do
       logSuccess ("ADDED") (showName n ++s br " = " ++s showValue value)
-      Δ , stack ← unfold {Γ = n ∷ Γ} body (value ∷ stack)
+      Δ , stack ← unfold {Γ = n ∷ Γ} body (𝟙∷ ext) (value ∷ initial) (value ∷ stack)
       pure (Δ ++ [ n ] , subst Ctx rewr stack)
 
-unfold {Γ} expr stack = do
-  prepare expr stack (do pure ([] , stack)) λ where
+unfold {Γ} expr ext initial stack = do
+  prepare expr initial (do pure ([] , stack)) λ where
     value → do
       logSuccess "RESULT" (showValue value)
       pure ([] , stack)
 
-
 {-# TERMINATING #-}
-repl : {Δ : _} → Ctx Δ → IO ⊤
-repl {Δ} stack = do
+repl : {S Δ : _} → S ⊂ Δ → Ctx S → Ctx Δ → IO ⊤
+repl {S} {Δ} ext initial stack = do
   logMsg "\nCOMMAND?"
   line ← getLine
   case parseStmt line of λ where
     (bad err) → do
       logError "PARSE" (Data.String.fromList err)
-      repl stack
+      repl ext initial stack
 
     (ok (decl p (name x) expr)) → do
-      prepare (exprᵣ expr) stack (repl stack) λ where
+      prepare (exprᵣ expr) stack (repl ext initial stack) λ where
         value → do
           logSuccess ("ADDED") (showName (♯ x) ++s br " = " ++s showValue value)
-          repl {Δ = ♯ x ∷ Δ} (value ∷ stack)
+          repl {Δ = ♯ x ∷ Δ} (𝟘∷ ext) initial (value ∷ stack)
 
     (ok (listAll p)) → do
       putStrLn (showCtx stack)
-      repl stack
+      repl ext initial stack
 
     (ok (perform p expr)) → do
-      prepare (exprᵣ expr) stack (repl stack) λ where
+      prepare (exprᵣ expr) stack (repl ext initial stack) λ where
         value → do
           logSuccess "RESULT" (showValue value)
-          repl stack
+          repl ext initial stack
 
     (ok (load p file)) → do
       let file = Data.String.fromList file
@@ -117,15 +119,15 @@ repl {Δ} stack = do
       case parseStart txt of λ where
         (bad err) → do
           logError "PARSE" (Data.String.fromList err)
-          repl stack
+          repl ext initial stack
 
         (ok (s _ expr)) → do
           let expr = exprᵣ expr
           putStrLn (showExprᵣ expr)
           putStrLn ""
-          _ , stack ← unfold expr stack
+          _ , stack ← unfold expr ext initial stack
           logSuccess "LOADED" (showValue (Str file))
-          repl stack
+          repl (𝟘⋯𝟘 ext) initial stack
 
 
 import Agda.Builtin.IO
@@ -135,5 +137,6 @@ open import Stdlib
 main : Agda.Builtin.IO.IO ⊤
 main = run do
   logMsg "\n   DNL (Definitely Not Lisp) REPL, v0.1"
-  repl {Δ = ♯ "add"  ∷ ♯ "compare" ∷ []}
+  repl {Δ = ♯ "add"  ∷ ♯ "compare" ∷ []} 𝟙⋯
+            (Lam add ∷ Lam cmp     ∷ [])
             (Lam add ∷ Lam cmp     ∷ [])

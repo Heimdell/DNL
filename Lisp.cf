@@ -20,7 +20,7 @@ Perform . Stmt ::= Expr;
 separator Expr ",";
 separator Name ",";
 Var . Expr ::= Name;
-Lam . Expr ::= "fun" [Name] "->" Expr "end";
+Lam . Expr ::= "fun" [Arg] "->" Expr "end";
 App . Expr ::= Expr "(" [Expr] ")";
 Let . Expr ::= "let" Name "=" Expr ";" Expr;
 Fix . Expr ::= "fix" Name "->" Expr "end";
@@ -31,6 +31,10 @@ Tag . Expr ::= Symbol "{" [Expr] "}";
 Mtc . Expr ::= "case" Expr "of" [Alt] "end";
 Lst . Expr ::= "[" [Expr] "]";
 Spl . Expr ::= "[" [Expr] "..." Expr "]";
+
+separator Arg ",";
+Argument . Arg ::= Name;
+SelfArg  . Arg ::= "@" Name;
 
 separator Alt ";";
 Cas . Alt ::= Pat "->" Expr;

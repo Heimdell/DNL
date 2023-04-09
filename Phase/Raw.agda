@@ -63,7 +63,7 @@ mutual
   showExprᵣ : Exprᵣ → String
   showExprᵣ (Var p name) = showName name
   showExprᵣ (Lam p args expr) =
-    let args₁ = unwords (map showName args) in
+    let args₁ = intersperse ", " (map showName args) in
     cyan "fun " ++ args₁ ++ cyan " ->\n" ++ indent! (showExprᵣ expr) ++ cyan "\nend"
 
   showExprᵣ (App p expr args) = showExprᵣ expr ++ "(" ++ intersperse ", " (map showExprᵣ args) ++ ")"

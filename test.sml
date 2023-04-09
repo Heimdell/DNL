@@ -1,22 +1,15 @@
-let append = fix self ->
-  fun xs, ys ->
-    case xs of
-      [x, ...xs] -> [x, ...self(xs, ys)];
-      []         -> ys
-    end
+let append = fun xs, @self, ys ->
+  case xs of
+    [x, ...xs] -> [x, ...self(xs, ys)];
+    []         -> ys
   end
 end;
 
-let fold = fun f, z, list ->
-  let inner = fix self ->
-    fun list ->
-      case list of
-        [x, ...xs] -> f(x, self(xs));
-        []         -> z
-      end
-    end
-  end;
-  inner(list)
+let fold = fun f, z, @self, list ->
+  case list of
+    [x, ...xs] -> f(x, self(xs));
+    []         -> z
+  end
 end;
 
 let map = fun f, list ->
@@ -63,24 +56,36 @@ let ok-vs-err = compare(Ok {1, 2}, Err {"foo"});
 
 let empty = Tip {};
 
-let insert = fun k, v, tree ->
-  let inner = fix self ->
-    fun tree ->
-      case tree of
-        Tip {} -> Branch {k, v, Tip {}, Tip {}};
-        Branch {k1, v1, l, r} ->
-          case compare(k, k1) of
-            Equal   {} -> Branch {k1, v, l, r};
-            Less    {} -> Branch {k1, v, self(l), r};
-            Greater {} -> Branch {k1, v1, l, self(r)};
-          end
+let insert = fun k, v, @self, tree ->
+  case tree of
+    Tip {} -> Branch {k, v, Tip {}, Tip {}};
+    Branch {k1, v1, l, r} ->
+      case compare(k, k1) of
+        Equal   {} -> Branch {k1, v, l, r};
+        Less    {} -> Branch {k1, v1, self(l), r};
+        Greater {} -> Branch {k1, v1, l, self(r)};
       end
-    end
-  end;
+  end
+end;
 
-  inner(tree)
+let lookup = fun k, @self, tree ->
+  case tree of
+    Tip {} -> Nothing {};
+    Branch {k1, v, l, r} ->
+      case compare(k, k1) of
+        Equal   {} -> Just {v};
+        Less    {} -> self(l);
+        Greater {} -> self(r);
+      end;
+  end
 end;
 
 let tree = insert(2, "2", insert(1, "1", insert(3, "3", empty)));
+let one   = lookup(1, tree);
+let two   = lookup(2, tree);
+let three = lookup(3, tree);
+let four  = lookup(4, tree);
+
+let test = fun a, @b, c, @d, e, @f, g -> 1 end;
 
 Done {}
