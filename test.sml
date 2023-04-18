@@ -1,3 +1,17 @@
+let equal = fun x, y ->
+  case compare(x, y) of
+    Equal{} -> True{};
+    _       -> False{}
+  end
+end;
+
+let and = fun x, y ->
+  case x of
+    False{} -> False{};
+    _       -> y
+  end
+end;
+
 let append = fun xs, @self, ys ->
   case xs of
     [x, ...xs] -> [x, ...self(xs, ys)];
@@ -77,6 +91,27 @@ let lookup = fun k, @self, tree ->
         Less    {} -> self(l);
         Greater {} -> self(r);
       end;
+  end
+end;
+
+let range = fun @self, x ->
+  case x of
+    0 -> Nil {};
+    n -> Cons {x, self(minus(x, 1))}
+  end
+end;
+
+let or = fun a, b ->
+  case !a of
+    True{} -> True{};
+    False{} -> !b;
+  end
+end;
+
+let if = fun b, y, n ->
+  case b of
+    True{} -> !y;
+    False{} -> !n;
   end
 end;
 

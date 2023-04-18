@@ -25,6 +25,9 @@ inj₁ x <*> inj₂ y = inj₂ y
 inj₂ y <*> inj₁ x = inj₂ y
 inj₂ y <*> inj₂ y₁ = inj₂ y
 
+_<!>_ :  A ⊎ E → (E → B) → A ⊎ B
+ma <!> f = [ pure , fail ∘ f ] ma
+
 open import Data.List
 
 each : (A → B ⊎ E) → List A → List B ⊎ E

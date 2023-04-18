@@ -1,7 +1,7 @@
 
 module Phase.Raw where
 
-open import Data.String using (String; _++_; lines; intersperse; unlines; unwords)
+open import Data.String using (String; _++_; lines; intersperse; unlines; unwords) renaming (show to show𝕊)
 open import Data.List using (List; _∷_; []; map)
 open import Data.Integer using (-_; ℤ)
 open import Data.Integer.Show
@@ -29,6 +29,9 @@ mutual
     Str    : (p : Pos) (str : String) → Exprᵣ
     Tagged : (p : Pos) (ctor : String) (args : List Exprᵣ) → Exprᵣ
     Match  : (p : Pos) (subj : Exprᵣ) (alts : List Altᵣ) → Exprᵣ
+    Reflect : (p : Pos) (expr : Exprᵣ) → Exprᵣ
+    Reify : (p : Pos) (expr : Exprᵣ) → Exprᵣ
+    Error : (p : Pos) (msg : String) (payload : Exprᵣ) → Exprᵣ
 
   record Altᵣ : Set where
     inductive
@@ -76,6 +79,9 @@ mutual
   ... | inj₁ a = blue "[" ++ intersperse (blue ", ") (map showExprᵣ a) ++ blue "]"
   ... | inj₂ (inj₁ (a , b)) = blue "[" ++ intersperse (blue ", ") (map showExprᵣ a) ++ blue ", ..." ++ showExprᵣ b ++ blue "]"
   ... | _ = magenta ctor ++ " {" ++ intersperse ", " (map showExprᵣ args) ++ "}"
+  showExprᵣ (Reflect p expr) = "'" ++ showExprᵣ expr
+  showExprᵣ (Reify p expr) = "!" ++ showExprᵣ expr
+  showExprᵣ (Error p msg expr) = "error " ++ show𝕊 msg ++ " " ++ showExprᵣ expr
 
   showAltᵣ : Altᵣ → String
   showAltᵣ (Case p pat body) = showPatᵣ pat ++ " ->\n" ++ indent! (showExprᵣ body) ++ ";"

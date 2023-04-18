@@ -32,6 +32,9 @@ mutual
   exprᵣ (mtc p expr as) = Match p (exprᵣ expr) (map altᵣ as)
   exprᵣ (lst p es) = foldr (λ x x₁ → Tagged p "Cons" ( exprᵣ x ∷ x₁ ∷ [])) (Tagged p "Nil" []) es
   exprᵣ (spl p es expr) = foldr (λ x x₁ → Tagged p "Cons" ( exprᵣ x ∷ x₁ ∷ [])) (exprᵣ expr) es
+  exprᵣ (rei p expr) = Reify p (exprᵣ expr)
+  exprᵣ (rfl p expr) = Reflect p (exprᵣ expr)
+  exprᵣ (err p x expr) = Error p (fromList x) (exprᵣ expr)
 
   altᵣ : Alt → Altᵣ
   altᵣ (cas p₁ p₂ e) = Case p₁ (patᵣ p₂) (exprᵣ e)

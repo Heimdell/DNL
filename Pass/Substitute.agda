@@ -22,6 +22,9 @@ mutual
   sub ⊢ Str p str = Str p str
   sub ⊢ Tagged p ctor args = Tagged p ctor (map (sub ⊢_) args)
   sub ⊢ Match p expr alts = Match p (sub ⊢ expr) (map (sub ⊢alt_) alts)
+  sub ⊢ Reflect p expr = Reflect p expr
+  sub ⊢ Reify p expr = Reify p (sub ⊢ expr)
+  sub ⊢ Error p msg expr = Error p msg (sub ⊢ expr)
 
   _⊢alt_ : Γ ⊂ Δ → Altₛ Γ → Altₛ Δ
   sub ⊢alt Case p pat body = Case p pat (𝟙⋯𝟙 sub ⊢ body)

@@ -20,6 +20,8 @@ data Patₛ (Δ : List Name) : Set where
   Str    : (p : Pos) (str : String) → Patₛ Δ
   Wild   : (p : Pos) → Patₛ Δ
 
+open import Phase.Raw
+
 mutual
   data Exprₛ (Γ : List Name) : Set where
     Var : (p : Pos) (ptr : n ∈ Γ) → Exprₛ Γ
@@ -35,6 +37,10 @@ mutual
 
     Tagged : (p : Pos) (ctor : String) (args : List (Exprₛ Γ)) → Exprₛ Γ
     Match : (p : Pos) (subj : Exprₛ Γ) (alts : List (Altₛ Γ)) → Exprₛ Γ
+
+    Reflect : (p : Pos) (expr : Exprᵣ) → Exprₛ Γ
+    Reify : (p : Pos) (expr : Exprₛ Γ) → Exprₛ Γ
+    Error : (p : Pos) (msg : String) (payload : Exprₛ Γ) → Exprₛ Γ
 
   record Altₛ (Γ : List Name) : Set where
     inductive

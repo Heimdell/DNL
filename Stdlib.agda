@@ -1,7 +1,7 @@
 
 module Stdlib where
 
-open import Data.Integer using (_+_)
+open import Data.Integer using (_+_; _-_)
 open import Data.String using (String)
 open import Data.List using (List; []; _∷_)
 open import Data.List.Relation.Unary.All using ([]; _∷_)
@@ -17,6 +17,10 @@ open import Name
 add : Pos → Ctx (♯ "x" ∷ ♯ "y" ∷ []) → Value ⊎ EvalError
 add p (Int x ∷ Int y ∷ []) = inj₁ (Int (x + y))
 add p (x ∷ y ∷ []) = inj₂ (Expected2Ints p x y)
+
+minus : Pos → Ctx (♯ "x" ∷ ♯ "y" ∷ []) → Value ⊎ EvalError
+minus p (Int x ∷ Int y ∷ []) = inj₁ (Int (x - y))
+minus p (x ∷ y ∷ []) = inj₂ (Expected2Ints p x y)
 
 mutual
   cmpValues : Pos → Value → Value → Value ⊎ EvalError

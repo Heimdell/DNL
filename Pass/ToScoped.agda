@@ -35,6 +35,9 @@ mutual
   checkₛ (Str p str)            = ⦇ (Str p str) ⦈
   checkₛ (Tagged p ctor args)   = ⦇ (Tagged p ctor) (each checkₛ args) ⦈
   checkₛ (Match p expr alts)    = ⦇ (Match p) (checkₛ expr) (each checkAltₛ alts) ⦈
+  checkₛ (Reflect p expr) = ⦇ (Reflect p expr) ⦈
+  checkₛ (Reify p expr) = ⦇ (Reify p) (checkₛ expr) ⦈
+  checkₛ (Error p msg expr) = ⦇ (Error p msg) (checkₛ expr) ⦈
 
   checkAltₛ : Altᵣ → Altₛ Γ ⊎ ScopeError
   checkAltₛ (Case p pat body) = do

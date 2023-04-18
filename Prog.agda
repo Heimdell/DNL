@@ -56,14 +56,14 @@ logMsg system = putStrLn (br (yellow system))
 prepare : {A : Set} {Γ : List Name.Name} → Exprᵣ → Ctx Γ → IO A → (Value → IO A) → IO A
 prepare {Γ = Γ} expr stack nope yep = do
   case checkₛ {Γ = Γ} expr of λ where
-    (inj₂ err) → do
-      logError "SCOPE" (showScopeError err)
+    (inj₂ error) → do
+      logError "SCOPE" (showScopeError error)
       nope
 
     (inj₁ res) → do
       case eval stack res of λ where
-        (inj₂ err) → do
-          logError "EVAL" (showEvalError err)
+        (inj₂ erro) → do
+          logError "EVAL" (showEvalError erro)
           nope
 
         (inj₁ value) → do
@@ -93,8 +93,8 @@ repl {S} {Δ} ext initial stack = do
   logMsg "\nCOMMAND?"
   line ← getLine
   case parseStmt line of λ where
-    (bad err) → do
-      logError "PARSE" (Data.String.fromList err)
+    (bad erro) → do
+      logError "PARSE" (Data.String.fromList erro)
       repl ext initial stack
 
     (ok (decl p (name x) expr)) → do
@@ -117,8 +117,8 @@ repl {S} {Δ} ext initial stack = do
       let file = Data.String.fromList file
       txt ← readFiniteFile file
       case parseStart txt of λ where
-        (bad err) → do
-          logError "PARSE" (Data.String.fromList err)
+        (bad erro) → do
+          logError "PARSE" (Data.String.fromList erro)
           repl ext initial stack
 
         (ok (s _ expr)) → do
@@ -137,6 +137,6 @@ open import Stdlib
 main : Agda.Builtin.IO.IO ⊤
 main = run do
   logMsg "\n   DNL (Definitely Not Lisp) REPL, v0.1"
-  repl {Δ = ♯ "add"  ∷ ♯ "compare" ∷ []} 𝟙⋯
-            (Lam add ∷ Lam cmp     ∷ [])
-            (Lam add ∷ Lam cmp     ∷ [])
+  repl {Δ = ♯ "minus" ∷ ♯ "add"  ∷ ♯ "compare" ∷ []} 𝟙⋯
+            (Lam minus ∷ Lam add ∷ Lam cmp     ∷ [])
+            (Lam minus ∷ Lam add ∷ Lam cmp     ∷ [])

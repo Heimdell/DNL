@@ -1,7 +1,7 @@
 
 module Pass.Evaluate where
 
-open import Data.List using (List; _++_; _∷_; [])
+open import Data.List using (List; _++_; _∷_; []; [_]; map)
 open import Data.List.Relation.Unary.All using (All; _∷_; [])
 open import Data.String using ()
 open import Data.Integer using ()
@@ -69,6 +69,9 @@ mutual
   ... | just acc = pats ps vs acc
   ... | nothing  = nothing
 
+open import Pass.Reflection using (reflect; reify)
+open import Pass.ToScoped using (checkₛ)
+
 mutual
   {-# TERMINATING #-}
   eval : Ctx Γ → Exprₛ Γ → Value ⊎ EvalError
@@ -89,7 +92,7 @@ mutual
         f ← eval stack (Fix p lam)
         apply p f (toList xs)
 
-    eval (fixpoint ∷ stack) lam  -- fix lam ==> lam (\ xs -> fix lam xs)
+    eval (fixpoint ∷ stack) lam
 
   eval stack (Fix p e) = fail (OnlyFunctionsCanRecure p)
 
@@ -99,6 +102,17 @@ mutual
   eval stack (Match p expr alts) = do
     value ← eval stack expr
     match p stack value alts
+
+  eval stack (Reflect p expr) = pure (reflect expr)
+  eval {Γ = Γ} stack (Reify p expr) = do
+    expr ← eval stack expr
+    raw  ← reify p expr
+    scoped ← checkₛ {Γ = Γ} raw <!> ReifyError
+    eval stack scoped
+
+  eval stack (Error p msg expr) = do
+    expr ← eval stack expr
+    fail (UserError p msg expr)
 
 
   alt : Ctx Γ → Value → Altₛ Γ → Maybe Value ⊎ EvalError

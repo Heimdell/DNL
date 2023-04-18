@@ -16,6 +16,8 @@ open import Pretty
 private variable
   Γ Δ : List Name
 
+open import Phase.Scoped using (ScopeError; showScopeError)
+
 mutual
   data EvalError : Set where
     TooMuchArgs       : (p : Pos) (formal : List Name) (args : List Value) → EvalError
@@ -27,6 +29,8 @@ mutual
     CantCompareFunctions : (p : Pos) → EvalError
     CantCompareValueOfDifferentTypes : (p : Pos) (x : Value) (y : Value) → EvalError
     SameTagDifferInArgCount : (p : Pos) (t : String) (xs ys : List Value) → EvalError
+    UserError : (p : Pos) → String → (v : Value) → EvalError
+    ReifyError : ScopeError → EvalError
 
   {-# NO_POSITIVITY_CHECK #-}
   data Value : Set where
@@ -102,3 +106,9 @@ showEvalError (SameTagDifferInArgCount p t xs ys) =
   "cannot sensibly compare 2 values with the same tag " ++ magenta t ++ " and arg-lists of different sizes "
     ++ "{" ++ intersperse ", " (map (showValue' 2) xs) ++ "} vs {" ++ intersperse ", " (map (showValue' 2) ys) ++ "}"
     ++ ", at " ++ showPos p
+
+showEvalError (UserError p msg v) =
+  "user error: " ++ msg ++ " " ++ showValue' 2 v
+
+showEvalError (ReifyError scoped) =
+  "during reification: " ++ showScopeError scoped

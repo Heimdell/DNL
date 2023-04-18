@@ -56,7 +56,7 @@ data Declᵣ : Set where
 data Scope : Set where
   Many : List Name → Scope      -- A block of declarations
   _‣_  : Scope → Scope → Scope  -- Adding a parent/ordering
-  _◃_  : Name → Scope → Scope   -- Adding
+  _◃_  : Name → Scope → Scope   -- Adding qualificator
 
 cut : Scope → Scope → Scope
 cut (Many x) b = Many x ‣ b
@@ -172,4 +172,4 @@ mutual
     _∷_
       : Stmtₛ      d   M       s   N
       → Progₛ (s ‣ d) (N ++ M) t   O  -- Add new scope and modules into the view
-      → Progₛ      d   M  (t ‣ s) (O ++ N)  -- Add scopes and modules
+      → Progₛ      d   M  (t ‣ s) (O ++ N)  -- Add scopes and modules⊂
